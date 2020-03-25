@@ -1,44 +1,38 @@
 # Coding Challenge
 
-Your task is to finish the Redux `mapStateToProps` function to a program to help an accountant to get balances from accounting journals.
+Coding challenge for Framework Science, from https://github.com/sxie2004/Coding-Challenge
 
-## Getting started
+## Running the project
 
-Install modules by running `npm install` in the command line, then `npm run start`.
+Install modules by running `npm install` in the command line.
 
-## Inputs & Outputs
+Run the project with `npm run start`.
 
-Journal and Accounts input fields are already parsed and stored in the app's
-Redux store.
+## Assumptions
+  The user input does not need to be * to mean 'any', as long as the input isn´t a valid number or date (depending on each case) it will be handled as *
 
-User input has the following form:
+  CSV rendering is done with semicolons `;` which was the default setup in the source repo. If needed it can be changed to comma `,` by changing the `toCSV` function in `src/utils.js`
 
-    AAAA BBBB CCC-YY DDD-YY EEE
+  From
 
-- AAAA is the starting account (* means first account of source file)
-- BBBB is the ending account(* means last account of source file)
-- CCC-YY is the first period (* means first period of source file)
-- DDD-YY is the last period (* means last period of source file)
-- EEE is output format (values can be HTML or CSV).
+  ```javascript
+  export const toCSV = arr => {
+    let headers = Object.keys(arr[0]).join(';');
+    let lines = arr.map(obj => Object.values(obj).join(';'));
+    return [headers, ...lines].join(';\n');
+  }
+  ```
 
-Examples of user inputs:
+  To
+  ```javascript
+  export const toCSV = arr => {
+    let headers = Object.keys(arr[0]).join(',');
+    let lines = arr.map(obj => Object.values(obj).join(','));
+    return [headers, ...lines].join('\n');
+  }
+  ```
 
-    1000 5000 MAR-16 JUL-16 HTML
 
-This user request must output all accounts from acounts starting with "1000" to accounts starting with "5000", from period MAR-16 to JUL-16. Output should be formatted as an HTML table.
-
-![1000 5000 MAR-16 JUL-16 HTML](/example-1.png)
-
-    2000 * * MAY-16 CSV
-
-This user request must output all accounts from accounts starting with "2000" to last account from source file, from first period of file to MAY-16. Output should be formatted as CSV.
-
-![2000 * * MAY-16 CSV](/example-2.png)
-
-## Challenge
-
-Parsing input fields and storing in Redux has already been implemented; it's up to you to filter the journals and accounts to create the balance data set. This code should go into the selector function at the bottom of the BalanceOutput component. The BalanceOutput component expects balance to be an array of objects with the keys: ACCOUNT, DESCRIPTION, DEBIT, CREDIT, and BALANCE.
-
-## Post challenge
-
-After you're done, commit your changes, push to your GitHub and send us a link.
+## Tests
+For the scope of this challenge, tests are manual.
+This [Google Sheet](https://docs.google.com/spreadsheets/d/1-spSJIxfApn8bYwye8hjTIutFmHTZ6xjOymYypKIDkk/edit?usp=sharing) was used to check the expected results.
