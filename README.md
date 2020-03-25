@@ -36,3 +36,7 @@ Run the project with `npm run start`.
 ## Tests
 For the scope of this challenge, tests are manual.
 This [Google Sheet](https://docs.google.com/spreadsheets/d/1-spSJIxfApn8bYwye8hjTIutFmHTZ6xjOymYypKIDkk/edit?usp=sharing) was used to check the expected results.
+
+
+## Edits
+Now ordering and grouping results by accounts.

@@ -80,15 +80,18 @@ function isValidDate(d) {
 }
 
 export default connect(state => {
+  /* YOUR CODE GOES HERE */
+  let journalEntries = []
+  Object.assign(journalEntries, state.journalEntries);
+  let journalEntriesFiltered = []
+
   let balance = [];
 
-  /* YOUR CODE GOES HERE */
-
-  for (var i = 0; i < state.journalEntries.length; i++) {
-    let account = state.journalEntries[i]['ACCOUNT']
+  for (var i = 0; i < journalEntries.length; i++) {
+    let entry = journalEntries[i]
 
     var correspondingAccount =  state.accounts.filter(function(acc) {
-      return acc['ACCOUNT'] === account
+      return acc['ACCOUNT'] === entry['ACCOUNT']
     });
 
     // FILTERS
@@ -101,7 +104,7 @@ export default connect(state => {
       if (Number.isNaN(state.userInput.startAccount)) {
         accountStartValid = true
       } else {
-        if (state.userInput.startAccount <= account) {
+        if (state.userInput.startAccount <= entry['ACCOUNT']) {
           accountStartValid = true
         }
       }
@@ -110,13 +113,13 @@ export default connect(state => {
       if (Number.isNaN(state.userInput.endAccount)) {
         accountEndValid = true
       } else {
-        if (state.userInput.endAccount >= account) {
+      if (state.userInput.endAccount >= entry['ACCOUNT']) {
           accountEndValid = true
         }
       }
 
       if (isValidDate(state.userInput.startPeriod)) {
-        if (state.userInput.startPeriod <= state.journalEntries[i]['PERIOD']) {
+        if (state.userInput.startPeriod <= entry['PERIOD']) {
           dateStartValid = true
         }
       } else {
@@ -125,7 +128,7 @@ export default connect(state => {
 
       // check that end date is in range
       if (isValidDate(state.userInput.endPeriod)) {
-        if (state.userInput.endPeriod >= state.journalEntries[i]['PERIOD']) {
+        if (state.userInput.endPeriod >= entry['PERIOD']) {
           dateEndValid = true
         }
       } else {
@@ -135,22 +138,47 @@ export default connect(state => {
 
     // push to resulting array if in filters parameters
     if (accountStartValid && accountEndValid && dateStartValid && dateEndValid) {
-      let description
-        if (correspondingAccount[0] !== undefined) {
-          description = correspondingAccount[0]['LABEL']
-        } else {
-          description = '-'
-        }
-
-      balance.push({
-        ACCOUNT: account,
-        DESCRIPTION: description,
-        DEBIT: state.journalEntries[i]['DEBIT'],
-        CREDIT: state.journalEntries[i]['CREDIT'],
-        BALANCE: state.journalEntries[i]['DEBIT'] - state.journalEntries[i]['CREDIT']
-      })
+      if (correspondingAccount[0] !== undefined) {
+        journalEntriesFiltered.push({
+          ACCOUNT: entry['ACCOUNT'],
+          DESCRIPTION: correspondingAccount[0]['LABEL'],
+          DEBIT: journalEntries[i]['DEBIT'],
+          CREDIT: journalEntries[i]['CREDIT'],
+          BALANCE: journalEntries[i]['DEBIT'] - journalEntries[i]['CREDIT']
+        })
+      }
     }
   }
+
+  // group entries by account
+  let journalEntriesGrouped = []
+  for (var j = 0; j < journalEntriesFiltered.length; j++) {
+    var entrysGrouped =  journalEntriesGrouped.filter(function(bal) {
+      return bal['ACCOUNT'] === journalEntriesFiltered[j]['ACCOUNT']
+    })
+
+    var group = entrysGrouped[0]
+
+    if (group === undefined) {
+      journalEntriesGrouped.push(journalEntriesFiltered[j])
+    } else {
+      group['DEBIT'] += journalEntriesFiltered[j]['DEBIT']
+      group['CREDIT'] += journalEntriesFiltered[j]['CREDIT']
+      group['BALANCE'] += journalEntriesFiltered[j]['BALANCE']
+    }
+  }
+
+  // order groups
+  let journalEntriesSorted = journalEntriesGrouped
+  journalEntriesSorted.sort(function (a, b) {
+    if (a['ACCOUNT'] > b['ACCOUNT']) {
+      return 1;  
+    } else {
+      return -1;
+    }
+  })
+
+  balance = journalEntriesSorted
 
   const totalCredit = balance.reduce((acc, entry) => acc + entry.CREDIT, 0);
   const totalDebit = balance.reduce((acc, entry) => acc + entry.DEBIT, 0);
