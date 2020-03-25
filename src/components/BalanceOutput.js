@@ -75,6 +75,10 @@ BalanceOutput.propTypes = {
   }).isRequired
 };
 
+function isValidDate(d) {
+  return d instanceof Date && !isNaN(d);
+}
+
 export default connect(state => {
   let balance = [];
 
@@ -87,20 +91,65 @@ export default connect(state => {
       return acc['ACCOUNT'] === account
     });
 
-    let description
-      if (correspondingAccount[0] !== undefined) {
-        description = correspondingAccount[0]['LABEL']
+    // FILTERS
+      let accountStartValid = false
+      let accountEndValid = false
+      let dateStartValid = false
+      let dateEndValid = false
+
+      // check that account start is in range
+      if (Number.isNaN(state.userInput.startAccount)) {
+        accountStartValid = true
       } else {
-        description = 'no'
+        if (state.userInput.startAccount <= account) {
+          accountStartValid = true
+        }
       }
 
-    balance.push({
-      ACCOUNT: account,
-      DESCRIPTION: description,
-      DEBIT: state.journalEntries[i]['DEBIT'],
-      CREDIT: state.journalEntries[i]['CREDIT'],
-      BALANCE: state.journalEntries[i]['DEBIT'] - state.journalEntries[i]['CREDIT']
-    })
+      // check that account end is in range
+      if (Number.isNaN(state.userInput.endAccount)) {
+        accountEndValid = true
+      } else {
+        if (state.userInput.startAccount <= account) {
+          accountEndValid = true
+        }
+      }
+
+      if (isValidDate(state.userInput.startPeriod)) {
+        if (state.userInput.startPeriod <= state.journalEntries[i]['PERIOD']) {
+          dateStartValid = true
+        }
+      } else {
+        dateStartValid = true
+      }
+
+      // check that end date is in range
+      if (isValidDate(state.userInput.endPeriod)) {
+        if (state.userInput.endPeriod >= state.journalEntries[i]['PERIOD']) {
+          dateEndValid = true
+        }
+      } else {
+        dateEndValid = true
+      }
+    // END FILTERING
+
+    // push to resulting array if in filters parameters
+    if (accountStartValid && accountEndValid && dateStartValid && dateEndValid) {
+      let description
+        if (correspondingAccount[0] !== undefined) {
+          description = correspondingAccount[0]['LABEL']
+        } else {
+          description = '-'
+        }
+
+      balance.push({
+        ACCOUNT: account,
+        DESCRIPTION: description,
+        DEBIT: state.journalEntries[i]['DEBIT'],
+        CREDIT: state.journalEntries[i]['CREDIT'],
+        BALANCE: state.journalEntries[i]['DEBIT'] - state.journalEntries[i]['CREDIT']
+      })
+    }
   }
 
   const totalCredit = balance.reduce((acc, entry) => acc + entry.CREDIT, 0);
