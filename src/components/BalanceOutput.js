@@ -79,10 +79,24 @@ export default connect(state => {
   let balance = [];
 
   /* YOUR CODE GOES HERE */
+
   for (var i = 0; i < state.journalEntries.length; i++) {
+    let account = state.journalEntries[i]['ACCOUNT']
+
+    var correspondingAccount =  state.accounts.filter(function(acc) {
+      return acc['ACCOUNT'] === account
+    });
+
+    let description
+      if (correspondingAccount[0] !== undefined) {
+        description = correspondingAccount[0]['LABEL']
+      } else {
+        description = 'no'
+      }
+
     balance.push({
-      ACCOUNT: 'account',
-      DESCRIPTION: 'description',
+      ACCOUNT: account,
+      DESCRIPTION: description,
       DEBIT: state.journalEntries[i]['DEBIT'],
       CREDIT: state.journalEntries[i]['CREDIT'],
       BALANCE: state.journalEntries[i]['DEBIT'] - state.journalEntries[i]['CREDIT']
