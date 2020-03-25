@@ -79,6 +79,15 @@ export default connect(state => {
   let balance = [];
 
   /* YOUR CODE GOES HERE */
+  for (var i = 0; i < state.journalEntries.length; i++) {
+    balance.push({
+      ACCOUNT: 'account',
+      DESCRIPTION: 'description',
+      DEBIT: state.journalEntries[i]['DEBIT'],
+      CREDIT: state.journalEntries[i]['CREDIT'],
+      BALANCE: state.journalEntries[i]['DEBIT'] - state.journalEntries[i]['CREDIT']
+    })
+  }
 
   const totalCredit = balance.reduce((acc, entry) => acc + entry.CREDIT, 0);
   const totalDebit = balance.reduce((acc, entry) => acc + entry.DEBIT, 0);
