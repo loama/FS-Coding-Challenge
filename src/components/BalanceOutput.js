@@ -110,7 +110,7 @@ export default connect(state => {
       if (Number.isNaN(state.userInput.endAccount)) {
         accountEndValid = true
       } else {
-        if (state.userInput.startAccount <= account) {
+        if (state.userInput.endAccount >= account) {
           accountEndValid = true
         }
       }
